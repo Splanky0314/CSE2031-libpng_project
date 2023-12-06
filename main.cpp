@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+// argv[1]을 받아오기 위함
+#include <string.h>
 
 #define PNG_SETJMP_NOT_SUPPORTED
 #include <png.h>
@@ -96,44 +98,46 @@ int main(int argc, char *argv[]) {
 	// input_ptr: 입력받은 이미지
 
 	// 1. 그대로 출력
-    // for(int col=0; col<WIDTH; col++) {
-    //     for(int row=0; row<HEIGHT; row++) {
-	// 		row_pointers[row][col].r = input_ptr[row][col * 4];
-    //         row_pointers[row][col].g = input_ptr[row][col * 4 + 1]; 
-    //         row_pointers[row][col].b = input_ptr[row][col * 4 + 2]; 
-    //         row_pointers[row][col].a = input_ptr[row][col * 4 + 3];
-    //     }
-    // }
-
-	// 2. 위아래 뒤집기
-	// for(int col=0; col<WIDTH; col++) {
-    //     for(int row=0; row<HEIGHT; row++) {
-	// 		row_pointers[HEIGHT-row-1][col].r = input_ptr[row][col * 4];
-    //         row_pointers[HEIGHT-row-1][col].g = input_ptr[row][col * 4 + 1]; 
-    //         row_pointers[HEIGHT-row-1][col].b = input_ptr[row][col * 4 + 2]; 
-    //         row_pointers[HEIGHT-row-1][col].a = input_ptr[row][col * 4 + 3];
-    //     }
-    // }
-
-	// 3. 좌우 뒤집기
-	// for(int col=0; col<WIDTH; col++) {
-    //     for(int row=0; row<HEIGHT; row++) {
-	// 		row_pointers[row][WIDTH-col-1].r = input_ptr[row][col * 4];
-    //         row_pointers[row][WIDTH-col-1].g = input_ptr[row][col * 4 + 1]; 
-    //         row_pointers[row][WIDTH-col-1].b = input_ptr[row][col * 4 + 2]; 
-    //         row_pointers[row][WIDTH-col-1].a = input_ptr[row][col * 4 + 3];
-    //     }
-    // }
-
-	//4. 대각선 뒤집기
-    // for(int col=0; col<WIDTH; col++) {
-    //     for(int row=0; row<HEIGHT; row++) {
-	// 		row_pointers[col][row].r = input_ptr[row][col * 4];
-    //         row_pointers[col][row].g = input_ptr[row][col * 4 + 1]; 
-    //         row_pointers[col][row].b = input_ptr[row][col * 4 + 2]; 
-    //         row_pointers[col][row].a = input_ptr[row][col * 4 + 3];
-    //     }
-    // }
+	if(!strcmp(argv[1], "1")) {
+		for(int col=0; col<WIDTH; col++) {
+			for(int row=0; row<HEIGHT; row++) {
+				row_pointers[row][col].r = input_ptr[row][col * 4];
+				row_pointers[row][col].g = input_ptr[row][col * 4 + 1]; 
+				row_pointers[row][col].b = input_ptr[row][col * 4 + 2]; 
+				row_pointers[row][col].a = input_ptr[row][col * 4 + 3];
+			}
+		}
+	}
+	else if(!strcmp(argv[1], "2")) { 	// 2. 위아래 뒤집기
+		for(int col=0; col<WIDTH; col++) {
+			for(int row=0; row<HEIGHT; row++) {
+				row_pointers[HEIGHT-row-1][col].r = input_ptr[row][col * 4];
+				row_pointers[HEIGHT-row-1][col].g = input_ptr[row][col * 4 + 1]; 
+				row_pointers[HEIGHT-row-1][col].b = input_ptr[row][col * 4 + 2]; 
+				row_pointers[HEIGHT-row-1][col].a = input_ptr[row][col * 4 + 3];
+			}
+		}
+	}
+	else if(!strcmp(argv[1], "3")) {	// 3. 좌우 뒤집기
+		for(int col=0; col<WIDTH; col++) {
+			for(int row=0; row<HEIGHT; row++) {
+				row_pointers[row][WIDTH-col-1].r = input_ptr[row][col * 4];
+				row_pointers[row][WIDTH-col-1].g = input_ptr[row][col * 4 + 1]; 
+				row_pointers[row][WIDTH-col-1].b = input_ptr[row][col * 4 + 2]; 
+				row_pointers[row][WIDTH-col-1].a = input_ptr[row][col * 4 + 3];
+			}
+		}
+	}
+	else if(!strcmp(argv[1], "4")) { 	//4. 대각선 뒤집기
+		for(int col=0; col<WIDTH; col++) {
+			for(int row=0; row<HEIGHT; row++) {
+				row_pointers[col][row].r = input_ptr[row][col * 4];
+				row_pointers[col][row].g = input_ptr[row][col * 4 + 1]; 
+				row_pointers[col][row].b = input_ptr[row][col * 4 + 2]; 
+				row_pointers[col][row].a = input_ptr[row][col * 4 + 3];
+			}
+		}
+	}
 
 	/* write image data to disk */
 	png_write_image(png_ptr, (png_byte **)row_pointers);
