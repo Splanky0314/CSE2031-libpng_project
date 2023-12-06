@@ -88,10 +88,10 @@ void reverse(Pixel *row_pointers[], int option, int col_location, int row_locati
 	else if(option==3) { 	//4. 대각선 뒤집기
 		for(int col=0; col<WIDTH; col++) {
 			for(int row=0; row<HEIGHT; row++) {
-				row_pointers[col_location+col][row_location+row].r = input_ptr[row][col * 4];
-				row_pointers[col_location+col][row_location+row].g = input_ptr[row][col * 4 + 1]; 
-				row_pointers[col_location+col][row_location+row].b = input_ptr[row][col * 4 + 2]; 
-				row_pointers[col_location+col][row_location+row].a = input_ptr[row][col * 4 + 3];
+				row_pointers[row_location+row][col_location+col].r = input_ptr[col][row * 4];
+				row_pointers[row_location+row][col_location+col].g = input_ptr[col][row * 4 + 1]; 
+				row_pointers[row_location+row][col_location+col].b = input_ptr[col][row * 4 + 2]; 
+				row_pointers[row_location+row][col_location+col].a = input_ptr[col][row * 4 + 3];
 			}
 		}
 	}
