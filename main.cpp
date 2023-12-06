@@ -52,45 +52,46 @@ void read_input_png(const char *filename) {
 	png_destroy_read_struct(&png, &info, NULL);
 }
 
-void reverse(Pixel *row_pointers[], char* option) {
+void reverse(Pixel *row_pointers[], int option, int col_location, int row_location) {
 	// 1. 그대로 출력
-	if(!strcmp(option, "1")) {
+	printf("%d\n", option);
+	if(option==0) {
 		for(int col=0; col<WIDTH; col++) {
 			for(int row=0; row<HEIGHT; row++) {
-				row_pointers[row][col].r = input_ptr[row][col * 4];
-				row_pointers[row][col].g = input_ptr[row][col * 4 + 1]; 
-				row_pointers[row][col].b = input_ptr[row][col * 4 + 2]; 
-				row_pointers[row][col].a = input_ptr[row][col * 4 + 3];
+				row_pointers[row_location+row][col_location+col].r = input_ptr[row][col * 4];
+				row_pointers[row_location+row][col_location+col].g = input_ptr[row][col * 4 + 1]; 
+				row_pointers[row_location+row][col_location+col].b = input_ptr[row][col * 4 + 2]; 
+				row_pointers[row_location+row][col_location+col].a = input_ptr[row][col * 4 + 3];
 			}
 		}
 	}
-	else if(!strcmp(option, "2")) { 	// 2. 위아래 뒤집기
+	else if(option==1) { 	// 2. 위아래 뒤집기
 		for(int col=0; col<WIDTH; col++) {
 			for(int row=0; row<HEIGHT; row++) {
-				row_pointers[HEIGHT-row-1][col].r = input_ptr[row][col * 4];
-				row_pointers[HEIGHT-row-1][col].g = input_ptr[row][col * 4 + 1]; 
-				row_pointers[HEIGHT-row-1][col].b = input_ptr[row][col * 4 + 2]; 
-				row_pointers[HEIGHT-row-1][col].a = input_ptr[row][col * 4 + 3];
+				row_pointers[(row_location+HEIGHT)-row-1][col_location+col].r = input_ptr[row][col * 4];
+				row_pointers[(row_location+HEIGHT)-row-1][col_location+col].g = input_ptr[row][col * 4 + 1]; 
+				row_pointers[(row_location+HEIGHT)-row-1][col_location+col].b = input_ptr[row][col * 4 + 2]; 
+				row_pointers[(row_location+HEIGHT)-row-1][col_location+col].a = input_ptr[row][col * 4 + 3];
 			}
 		}
 	}
-	else if(!strcmp(option, "3")) {	// 3. 좌우 뒤집기
+	else if(option==2) {	// 3. 좌우 뒤집기
 		for(int col=0; col<WIDTH; col++) {
 			for(int row=0; row<HEIGHT; row++) {
-				row_pointers[row][WIDTH-col-1].r = input_ptr[row][col * 4];
-				row_pointers[row][WIDTH-col-1].g = input_ptr[row][col * 4 + 1]; 
-				row_pointers[row][WIDTH-col-1].b = input_ptr[row][col * 4 + 2]; 
-				row_pointers[row][WIDTH-col-1].a = input_ptr[row][col * 4 + 3];
+				row_pointers[row_location+row][(col_location+WIDTH)-col-1].r = input_ptr[row][col * 4];
+				row_pointers[row_location+row][(col_location+WIDTH)-col-1].g = input_ptr[row][col * 4 + 1]; 
+				row_pointers[row_location+row][(col_location+WIDTH)-col-1].b = input_ptr[row][col * 4 + 2]; 
+				row_pointers[row_location+row][(col_location+WIDTH)-col-1].a = input_ptr[row][col * 4 + 3];
 			}
 		}
 	}
-	else if(!strcmp(option, "4")) { 	//4. 대각선 뒤집기
+	else if(option==3) { 	//4. 대각선 뒤집기
 		for(int col=0; col<WIDTH; col++) {
 			for(int row=0; row<HEIGHT; row++) {
-				row_pointers[col][row].r = input_ptr[row][col * 4];
-				row_pointers[col][row].g = input_ptr[row][col * 4 + 1]; 
-				row_pointers[col][row].b = input_ptr[row][col * 4 + 2]; 
-				row_pointers[col][row].a = input_ptr[row][col * 4 + 3];
+				row_pointers[col_location+col][row_location+row].r = input_ptr[row][col * 4];
+				row_pointers[col_location+col][row_location+row].g = input_ptr[row][col * 4 + 1]; 
+				row_pointers[col_location+col][row_location+row].b = input_ptr[row][col * 4 + 2]; 
+				row_pointers[col_location+col][row_location+row].a = input_ptr[row][col * 4 + 3];
 			}
 		}
 	}
@@ -125,17 +126,22 @@ int main(int argc, char *argv[]) {
 
 	/* begin writing PNG File */
 	png_init_io(png_ptr, f);
-	png_set_IHDR(png_ptr, info_ptr, WIDTH, HEIGHT, COLOR_DEPTH,
+	png_set_IHDR(png_ptr, info_ptr, WIDTH*100, HEIGHT*100, COLOR_DEPTH,
 	             PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
 	             PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 	png_write_info(png_ptr, info_ptr);
 
 	/* allocate image data */
-	struct Pixel *row_pointers[HEIGHT];
-	for (int row = 0; row < HEIGHT; row++) {
-		row_pointers[row] = (Pixel *)calloc(WIDTH*2, sizeof(struct Pixel));
+	// struct Pixel *row_pointers[HEIGHT*100];
+	// for (int row = 0; row < HEIGHT*100; row++) {
+	// 	row_pointers[row] = (Pixel *)calloc(WIDTH*2*100, sizeof(struct Pixel));
+	// }
+    struct Pixel **row_pointers;
+	row_pointers = (struct Pixel **)malloc(sizeof(struct Pixel *) * HEIGHT * 100);
+	for (int row = 0; row < HEIGHT * 100; row++) {
+		row_pointers[row] = (struct Pixel *)malloc(sizeof(struct Pixel) * WIDTH * 100);
 	}
-    
+
     const char *ptr = "target.png";
     read_input_png(ptr);
 
@@ -144,7 +150,15 @@ int main(int argc, char *argv[]) {
 
 	srand(time(NULL));
 
-	reverse(row_pointers, argv[1]);
+	//reverse(row_pointers, int(argv[1][0])-48,0,0);
+	//reverse(row_pointers, 0,0,0);
+
+	for(int i=0; i<HEIGHT*100; i+=HEIGHT) {
+		for(int j=0; j<WIDTH*100; j+=WIDTH) {
+			printf("%d %d - ", i,j);
+			reverse(row_pointers, rand()%4, i, j);
+		}
+	}
 
 	/* write image data to disk */
 	png_write_image(png_ptr, (png_byte **)row_pointers);
