@@ -1,15 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-// argv[1]을 받아오기 위함
-#include <string.h>
-#include <time.h>
+#include <time.h> // rand()함수의 시드값을 지정하는 데 사용
 
 #define PNG_SETJMP_NOT_SUPPORTED
 #include <png.h>
 
-#define WIDTH 32
-#define HEIGHT 32
+#define WIDTH 290	// target.png의 width
+#define HEIGHT 290	// target.png의 height
 #define COLOR_DEPTH 8
+#define UNIT 30
 
 struct Pixel {
 	png_byte r, g, b, a;
@@ -52,9 +51,10 @@ void read_input_png(const char *filename) {
 	png_destroy_read_struct(&png, &info, NULL);
 }
 
+// row_pointers: 출력할 이미지
+// input_ptr: 입력받은 이미지
 void reverse(Pixel *row_pointers[], int option, int col_location, int row_location) {
 	// 1. 그대로 출력
-	printf("%d\n", option);
 	if(option==0) {
 		for(int col=0; col<WIDTH; col++) {
 			for(int row=0; row<HEIGHT; row++) {
@@ -100,14 +100,14 @@ void reverse(Pixel *row_pointers[], int option, int col_location, int row_locati
 int main(int argc, char *argv[]) {
 	srand(time(NULL));
 
-	/* open PNG file for writing */
-	FILE *f = fopen("out.png", "wb");
+	// output png file(out.png)를 열기
+	FILE *f = fopen(argv[2], "wb");
 	if (!f) {
 		fprintf(stderr, "could not open out.png\n");
 		return 1;
 	}
 
-	/* initialize png data structures */
+	// out.png structure 초기화 과정
 	png_structp png_ptr;
 	png_infop info_ptr;
 
@@ -124,38 +124,27 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	/* begin writing PNG File */
 	png_init_io(png_ptr, f);
-	png_set_IHDR(png_ptr, info_ptr, WIDTH*100, HEIGHT*100, COLOR_DEPTH,
+	png_set_IHDR(png_ptr, info_ptr, WIDTH*UNIT, HEIGHT*UNIT, COLOR_DEPTH,
 	             PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
 	             PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 	png_write_info(png_ptr, info_ptr);
 
-	/* allocate image data */
-	// struct Pixel *row_pointers[HEIGHT*100];
-	// for (int row = 0; row < HEIGHT*100; row++) {
-	// 	row_pointers[row] = (Pixel *)calloc(WIDTH*2*100, sizeof(struct Pixel));
-	// }
+	// out.png 메모리 2차원 동적 할당
     struct Pixel **row_pointers;
-	row_pointers = (struct Pixel **)malloc(sizeof(struct Pixel *) * HEIGHT * 100);
-	for (int row = 0; row < HEIGHT * 100; row++) {
-		row_pointers[row] = (struct Pixel *)malloc(sizeof(struct Pixel) * WIDTH * 100);
+	row_pointers = (struct Pixel **)malloc(sizeof(struct Pixel *) * HEIGHT * UNIT);
+	for (int row = 0; row < HEIGHT * UNIT; row++) {
+		row_pointers[row] = (struct Pixel *)malloc(sizeof(struct Pixel) * WIDTH * UNIT);
 	}
 
-    const char *ptr = "target.png";
+    const char *ptr = argv[1];
     read_input_png(ptr);
-
-	// row_pointers: 출력할 이미지
-	// input_ptr: 입력받은 이미지
 
 	srand(time(NULL));
 
-	//reverse(row_pointers, int(argv[1][0])-48,0,0);
-	//reverse(row_pointers, 0,0,0);
-
-	for(int i=0; i<HEIGHT*100; i+=HEIGHT) {
-		for(int j=0; j<WIDTH*100; j+=WIDTH) {
-			printf("%d %d - ", i,j);
+	for(int i=0; i<HEIGHT*UNIT; i+=HEIGHT) {
+		for(int j=0; j<WIDTH*UNIT; j+=WIDTH) {
+			//printf("%d %d - ", i,j);
 			reverse(row_pointers, rand()%4, i, j);
 		}
 	}
